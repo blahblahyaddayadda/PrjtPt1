@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "parcel index.html --open -p 8080",
+    "start": "parcel index.html --port $PORT",
     "build": "parcel build index.html"
   },
   "devDependencies": {
