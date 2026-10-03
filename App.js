@@ -149,14 +149,6 @@ function Dashboard({ db, setPage }) {
             )}
         </div>
 
-        <div className="card getting-started">
-            <h3>Part 1 workflow</h3>
-            <ol>
-                <li>Add instructors and customers.</li>
-                <li>Create packages and classes.</li>
-                <li>Manage instructor assignments and class information.</li>
-            </ol>
-        </div>
     </section>;
 }
 
