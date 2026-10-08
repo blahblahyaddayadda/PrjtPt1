@@ -118,7 +118,110 @@ function Classes({ data, setData, instructors }) {
     </Table></div></div></section>;
 }
 
-function Dashboard({ db, setPage }) {
+function Sales({ data, setData, customers, packages, sales, setSales }) {
+  const [customerId, setCustomerId] = useState(customers[0]?.id || '');
+  const [packageId, setPackageId] = useState(packages[0]?.id || ''); 
+  const [message, setMessage] = useState('');
+  const [payment, setPayment] = useState('Card');
+
+  const pack = packages.find(p => p.id === packageId);
+
+  const submit = e => {
+    e.preventDefault();
+    if (!customerId || !packageId) {
+      return setMessage('Please select a customer and a package.');
+    }
+    const sale = {
+      id: uid('S'),
+      customerId,
+      packageId,
+      amount: Number(pack.price),
+      payment,
+      date: new Date().toISOString()
+    };
+    setSales([...sales, sale]);
+    setCustomers(customers.map(c => c.id === customerId ? { ...c, balance: c.balance + (pack.count === 'Unlimited' ? 999 : Number(pack.count))} :c));
+    setMessage('Sale recorded and customer balance updated.');
+  };
+
+  return (
+    <section>
+      <div className="page-title">
+        <div>
+          <p className="eyebrow">Transaction</p>
+        </div>
+      </div>
+
+      <div className="split">
+        <form className="card form" onSubmit={submit}>
+          <h3>New Sale</h3>
+
+          <Field label="Customer">
+            <select value={customerId} onChange={e => setCustomerId(e.target.value)}>
+              {customers.map(c => (
+                <option key={c.id} value={c.id}>
+                  {c.firstName} {c.lastName}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          <Field label="Package">
+            <select value={packageId} onChange={e => setPackageId(e.target.value)}>
+              {packages.map(p => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          <div className="summary">
+            <span>Amount due</span>
+            <strong>{money(pack?.price)}</strong>
+          </div>
+
+          <Field label="Payment Method">
+            <select value={payment} onChange={e => setPayment(e.target.value)}>
+              <option value="Card">Card</option>
+              <option value="Cash">Cash</option>
+              <option value="Check">Check</option>
+            </select>
+          </Field>
+
+          {message && <p className="notice">{message}</p>}
+          <button className="primary">Record Sale</button>
+
+        </form>
+        <div className="card">
+          <h3>Recent Sales</h3>
+
+          {sales.length ? (
+          <Table heads={['ID', 'Customer', 'Package', 'Amount', 'Paid', 'Date']}>
+            {[...sales].reverse().map(s => {
+              const customer = customers.find(x => x.id === s.customerId);
+              const pack = packages.find(x => x.id === s.packageId);
+
+              return (
+                <tr key={s.id}>
+                  <td>{c?.firstName} {c?.lastName}</td>
+                  <td>{p?.name}</td>
+                  <td>{money(s.amount)}<small>{s.payment}</small></td>
+                  <td>{new Date(s.date).toLocaleDateString()}</td>
+                </tr>
+              );
+            })}
+          </Table>
+          ) : (
+            <Empty />
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+    function Dashboard({ db, setPage }) {
     const cards = [
         ['Customers', db.customers.length, 'Customers'],
         ['Instructors', db.instructors.length, 'Instructors'],
