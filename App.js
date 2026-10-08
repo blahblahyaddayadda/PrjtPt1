@@ -29,7 +29,7 @@ const starter = {
   sales: [], attendance: []
 };
 
-const nav = ['Dashboard', 'Instructors', 'Customers', 'Classes', 'Packages'];
+const nav = ['Dashboard', 'Instructors', 'Customers', 'Classes', 'Packages', 'Sales'];
 
 function Field({ label, children }) { return <label><span>{label}</span>{children}</label>; }
 function Empty({ text = 'No records yet.' }) { return <div className="empty">{text}</div>; }
@@ -281,7 +281,15 @@ export default function App() {
         Packages: <Packages
             data={db.packages}
             setData={set('packages')}
+        />,
+        Sales: <Sales
+            data={db.sales}
+            setData={set('sales')}
+            customers={db.customers}
+            setCustomers={set('customers')}
+            packages={db.packages}
         />
+
     }), [db]);
     return <div className="app">
         <aside>
