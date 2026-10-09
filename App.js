@@ -81,7 +81,14 @@ function Packages({ data, setData }) {
     <div className="card"><h3>Available Packages</h3><Table heads={['ID', 'Package', 'Rules', 'Price']}>
       {data.map(p => <tr key={p.id}><td>{p.id}</td><td><strong>{p.name}</strong><small>{p.category}</small></td><td>{p.count} classes · {p.duration} days<small>{p.classType}</small></td><td>{money(p.price)}</td></tr>)}
     </Table></div></div></section>;
+    const remove = id => {
+      if (sales.some(s => s.packageId === id))
+        window.alert('This package has been sold and cannot be deleted.');
+      return;
 }
+
+if (window.confirm('Delete this package?')) setData(data.filter(p => p.id !== id));
+};
 
 function Classes({ data, setData, instructors }) {
   const blank = { name: 'All Levels', instructorId: instructors[0]?.id || '', day: 'Monday', time: '09:00', classType: 'General', payRate: 45, published: false };
