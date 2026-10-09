@@ -64,7 +64,7 @@ function People({ title, type, rows, setRows }) {
   </section>;
 }
 
-function Packages({ data, setData = [] }) {
+function Packages({ data, setData, sales = [] }) {
   const blank = { name: '', category: 'General', count: '4', classType: 'General', duration: 30, price: '' };
   const [form, setForm] = useState(blank);
   const change = e => setForm({ ...form, [e.target.name]: e.target.value });
