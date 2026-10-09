@@ -64,23 +64,42 @@ function People({ title, type, rows, setRows }) {
   </section>;
 }
 
-function Packages({ data, setData = []}){
+function Packages({ data, setData = [] }) {
   const blank = { name: '', category: 'General', count: '4', classType: 'General', duration: 30, price: '' };
   const [form, setForm] = useState(blank);
   const change = e => setForm({ ...form, [e.target.name]: e.target.value });
-  const submit = e => { e.preventDefault(); 
-    if (!form.name || !form.price) return; 
-    setData([...data, { ...form, id: uid('P'), duration: Number(form.duration), price: Number(form.price) }]); 
-    setForm(blank);
-    const remove = id => {
-      if (sales.some(s => s.packageId === id))
-        window.alert('This package has been sold and cannot be deleted.');
-      return;
-}
+  
+const submit = e => {
+  e.preventDefault();
 
-if (window.confirm('Delete this package?')) setData(data.filter(p => p.id !== id));
- 
-  };
+  if (!form.name || !form.price) return;
+
+  setData([
+    ...data,
+    {
+      ...form,
+      id: uid('P'),
+      duration: Number(form.duration),
+      price: Number(form.price)
+    }
+  ]);
+
+  setForm(blank);
+};
+
+const remove = id => {
+  if (sales.some(s => s.packageId === id)) {
+    window.alert(
+      'This package has been sold and cannot be deleted.'
+    );
+    return;
+  }
+
+  if (window.confirm('Delete this package?')) {
+    setData(data.filter(p => p.id !== id));
+  }
+};
+
   return <section>
     <div className="page-title"><div>
       <p className="eyebrow">Products</p>
@@ -95,9 +114,43 @@ if (window.confirm('Delete this package?')) setData(data.filter(p => p.id !== id
       <Field label="Validity (days)"><input type="number" name="duration" value={form.duration} onChange={change} /></Field>
       <Field label="Price *"><input type="number" name="price" value={form.price} onChange={change} /></Field>
     </div><button className="primary">Save Package</button></form>
-    <div className="card"><h3>Available Packages</h3><Table heads={['ID', 'Package', 'Rules', 'Price']}>
-      {data.map(p => <tr key={p.id}><td>{p.id}</td><td><strong>{p.name}</strong><small>{p.category}</small></td><td>{p.count} classes · {p.duration} days<small>{p.classType}</small></td><td>{money(p.price)}</td></tr>)}
-    </Table></div></div></section>;
+    
+<div className="card">
+  <h3>Available Packages</h3>
+
+  <Table heads={['ID', 'Package', 'Rules', 'Price', 'Actions']}>
+    {data.map(p => (
+      <tr key={p.id}>
+        <td>{p.id}</td>
+
+        <td>
+          <strong>{p.name}</strong>
+          <small>{p.category}</small>
+        </td>
+
+        <td>
+          {p.count} classes · {p.duration} days
+          <small>{p.classType}</small>
+        </td>
+
+        <td>{money(p.price)}</td>
+
+        <td>
+          <button
+            type="button"
+            className="link danger-text"
+            onClick={() => remove(p.id)}
+          >
+            Delete
+          </button>
+        </td>
+      </tr>
+    ))}
+  </Table>
+</div>
+</div>
+</section>;
+
     };
 
 function Classes({ data, setData, instructors }) {
