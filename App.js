@@ -7,29 +7,15 @@ const money = n => `$${Number(n || 0).toFixed(2)}`;
 const uid = prefix => `${prefix}${Date.now().toString().slice(-6)}${Math.floor(Math.random() * 90 + 10)}`;
 
 const starter = {
-  instructors: [
-    { id: 'I00123', firstName: 'Stan', lastName: 'Lee', phone: '412-555-0112', email: 's_lee@example.com', address: 'Pittsburgh, PA', preferred: 'Email' },
-    { id: 'I00124', firstName: 'Bruce', lastName: 'Banner', phone: '412-555-0160', email: 'bbruce@example.com', address: 'Pittsburgh, PA', preferred: 'Phone' }
-  ],
-  customers: [
-    { id: 'C00123', firstName: 'Alex', lastName: 'Jones', phone: '412-555-0142', email: 'alex@example.com', address: 'Pittsburgh, PA', preferred: 'Email', balance: 4 },
-    { id: 'C00124', firstName: 'Robert', lastName: 'Rivera', phone: '412-555-0188', email: 'robby@example.com', address: 'Pittsburgh, PA', preferred: 'Phone', balance: 10 }
-  ],
-  packages: [
-    { id: 'P001', name: 'Single Class', category: 'General', count: '1', classType: 'General', duration: 1, price: 20 },
-    { id: 'P002', name: '4 Class Pass', category: 'General', count: '4', classType: 'General', duration: 30, price: 70 },
-    { id: 'P003', name: '10 Class Pass', category: 'General', count: '10', classType: 'General', duration: 90, price: 140 },
-    { id: 'P004', name: '3 Months Unlimited', category: 'General', count: 'Unlimited', classType: 'General', duration: 90, price: 400 },
-    { id: 'P005', name: 'Senior 4 Class Pass', category: 'Senior', count: '4', classType: 'General', duration: 30, price: 60 }
-  ],
-  classes: [
-    { id: 'CL001', name: 'All Levels', instructorId: 'I00123', day: 'Monday', time: '18:15', classType: 'General', payRate: 45, published: true },
-    { id: 'CL002', name: 'All Levels', instructorId: 'I00124', day: 'Tuesday', time: '09:00', classType: 'General', payRate: 45, published: true }
-  ],
-  sales: [], attendance: []
+  instructors: [],
+  customers: [],
+  packages: [],
+  classes: [],
+  sales: [], 
+  attendance: []
 };
 
-const nav = ['Dashboard', 'Instructors', 'Customers', 'Classes', 'Packages', 'Sales'];
+const nav = ['Dashboard', 'Instructors', 'Customers', 'Classes', 'Packages', 'Sales', 'Attendance', 'Schedule', 'Reports'];
 
 function Field({ label, children }) { return <label><span>{label}</span>{children}</label>; }
 function Empty({ text = 'No records yet.' }) { return <div className="empty">{text}</div>; }
@@ -118,214 +104,152 @@ function Classes({ data, setData, instructors }) {
     </Table></div></div></section>;
 }
 
-function Sales({ data, setData, customers, packages, sales, setSales }) {
-  const [customerId, setCustomerId] = useState(customers[0]?.id || '');
-  const [packageId, setPackageId] = useState(packages[0]?.id || ''); 
-  const [message, setMessage] = useState('');
-  const [payment, setPayment] = useState('Card');
-
+function Sales({ customers, setCustomers, packages, sales, setSales }) {
+  const [customerId, setCustomerId] = useState(customers[0]?.id || ''); const [packageId, setPackageId] = useState(packages[0]?.id || ''); const [payment, setPayment] = useState('Card'); const [message, setMessage] = useState('');
   const pack = packages.find(p => p.id === packageId);
-
-  const submit = e => {
-    e.preventDefault();
-    if (!customerId || !packageId) {
-      return setMessage('Please select a customer and a package.');
-    }
-    const sale = {
-      id: uid('S'),
-      customerId,
-      packageId,
-      amount: Number(pack.price),
-      payment,
-      date: new Date().toISOString()
-    };
-    setSales([...sales, sale]);
-    setCustomers(customers.map(c => c.id === customerId ? { ...c, balance: c.balance + (pack.count === 'Unlimited' ? 999 : Number(pack.count))} :c));
-    setMessage('Sale recorded and customer balance updated.');
-  };
-
-  return (
-    <section>
-      <div className="page-title">
-        <div>
-          <p className="eyebrow">Transaction</p>
-        </div>
-      </div>
-
-      <div className="split">
-        <form className="card form" onSubmit={submit}>
-          <h3>New Sale</h3>
-
-          <Field label="Customer">
-            <select value={customerId} onChange={e => setCustomerId(e.target.value)}>
-              {customers.map(c => (
-                <option key={c.id} value={c.id}>
-                  {c.firstName} {c.lastName}
-                </option>
-              ))}
-            </select>
-          </Field>
-
-          <Field label="Package">
-            <select value={packageId} onChange={e => setPackageId(e.target.value)}>
-              {packages.map(p => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          </Field>
-
-          <div className="summary">
-            <span>Amount due</span>
-            <strong>{money(pack?.price)}</strong>
-          </div>
-
-          <Field label="Payment Method">
-            <select value={payment} onChange={e => setPayment(e.target.value)}>
-              <option value="Card">Card</option>
-              <option value="Cash">Cash</option>
-              <option value="Check">Check</option>
-            </select>
-          </Field>
-
-          {message && <p className="notice">{message}</p>}
-          <button className="primary">Record Sale</button>
-
-        </form>
-        <div className="card">
-          <h3>Recent Sales</h3>
-
-          {sales.length ? (
-          <Table heads={['ID', 'Customer', 'Package', 'Amount', 'Paid', 'Date']}>
-            {[...sales].reverse().map(s => {
-              const customer = customers.find(x => x.id === s.customerId);
-              const pack = packages.find(x => x.id === s.packageId);
-
-              return (
-                <tr key={s.id}>
-                  <td>{c?.firstName} {c?.lastName}</td>
-                  <td>{p?.name}</td>
-                  <td>{money(s.amount)}<small>{s.payment}</small></td>
-                  <td>{new Date(s.date).toLocaleDateString()}</td>
-                </tr>
-              );
-            })}
-          </Table>
-          ) : (
-            <Empty />
-          )}
-        </div>
-      </div>
-    </section>
-  );
+  const submit = e => { e.preventDefault(); if (!customerId || !pack) return; const start = today(); const end = new Date(); end.setDate(end.getDate() + Number(pack.duration)); const sale = { id: uid('S'), customerId, packageId, amount: pack.price, payment, date: new Date().toISOString(), start, end: end.toISOString().slice(0, 10) }; setSales([...sales, sale]); if (pack.count !== 'Unlimited') setCustomers(customers.map(c => c.id === customerId ? { ...c, balance: Number(c.balance) + Number(pack.count) } : c)); setMessage(`Sale recorded. New balance: ${pack.count === 'Unlimited' ? 'Unlimited' : customers.find(c => c.id === customerId).balance + Number(pack.count)}.`); };
+  return <section><div className="page-title"><div><p className="eyebrow">Transactions</p><h2>Record a Sale</h2></div></div><div className="split">
+    <form className="card form" onSubmit={submit}><h3>New Package Sale</h3><Field label="Customer"><select value={customerId} onChange={e => setCustomerId(e.target.value)}>{customers.map(c => <option key={c.id} value={c.id}>{c.firstName} {c.lastName} ({c.id})</option>)}</select></Field><Field label="Package"><select value={packageId} onChange={e => setPackageId(e.target.value)}>{packages.map(p => <option key={p.id} value={p.id}>{p.name} — {money(p.price)}</option>)}</select></Field><div className="summary"><span>Amount due</span><strong>{money(pack?.price)}</strong></div><Field label="Payment method"><select value={payment} onChange={e => setPayment(e.target.value)}><option>Card</option><option>Cash</option><option>Check</option></select></Field>{message && <p className="notice">{message}</p>}<button className="primary">Record Sale</button></form>
+    <div className="card"><h3>Recent Sales</h3>{sales.length ? <Table heads={['Customer', 'Package', 'Paid', 'Date']}>{[...sales].reverse().map(s => { const c = customers.find(x => x.id === s.customerId), p = packages.find(x => x.id === s.packageId); return <tr key={s.id}><td>{c?.firstName} {c?.lastName}</td><td>{p?.name}</td><td>{money(s.amount)}<small>{s.payment}</small></td><td>{new Date(s.date).toLocaleDateString()}</td></tr>; })}</Table> : <Empty />}</div>
+  </div></section>;
 }
 
-    function Dashboard({ db, setPage }) {
-    const cards = [
-        ['Customers', db.customers.length, 'Customers'],
-        ['Instructors', db.instructors.length, 'Instructors'],
-        ['Classes', db.classes.length, 'Classes'],
-        ['Packages', db.packages.length, 'Packages']
-    ];
+function Attendance({ classes, instructors, customers, setCustomers, attendance, setAttendance }) {
+  const [classId, setClassId] = useState(classes[0]?.id || ''); 
+  const [date, setDate] = useState(today()); 
+  const [selected, setSelected] = useState([]); 
+  const [message, setMessage] = useState('');
+  const cls = classes.find(c => c.id === classId); 
+  const toggle = id => setSelected(selected.includes(id) ? selected.filter(x => x !== id) : [...selected, id]);
+  const save = () => { 
+    if (!cls || !selected.length) return setMessage('Choose a class and at least one customer.'); 
+  const low = customers.filter(c => selected.includes(c.id) && c.balance <= 0); 
+  if (low.length && !window.confirm(`${low.length} customer(s) have no balance. Continue with a negative balance?`)) return; 
+  const entries = selected.map(customerId => ({ id: uid('A'), classId, customerId, date })); 
+  setAttendance([...attendance, ...entries]); 
+  setCustomers(customers.map(c => selected.includes(c.id) ? { ...c, balance: Number(c.balance) - 1 } : c)); 
+  setMessage(`${selected.length} customer(s) checked in. Confirmations created.`); 
+  setSelected([]); 
+};
+  const scheduledDay = cls ? DAYS[new Date(`${date}T12:00:00`).getDay()] : ''; 
+  const mismatch = cls && scheduledDay !== cls.day;
+  return <section><div className="page-title"><div><p className="eyebrow">Check-in</p><h2>Class Attendance</h2></div></div><div className="split">
+    <div className="card form">
+      <h3>Attendance Form</h3>
+      <Field label="Class"><select value={classId} onChange={e => setClassId(e.target.value)}>{classes.map(c => <option key={c.id} value={c.id}>{c.day} {c.time} · {c.name}</option>)}</select>
+      </Field>
+      <Field label="Attendance date"><input type="date" value={date} onChange={e => setDate(e.target.value)} />
+      </Field>
+      {mismatch && <p className="notice warning">Warning: this date is {scheduledDay}, but the class is scheduled for {cls.day}.</p>}
+      <h4>Select customers</h4>
+      <div className="check-list">{customers.map(c => <label key={c.id}><input type="checkbox" checked={selected.includes(c.id)} onChange={() => toggle(c.id)} /><span>{c.firstName} {c.lastName}<small>{c.id} · Balance {c.balance}</small></span></label>)}
+      </div>
+      {message && <p className="notice">{message}</p>}
+      <button className="primary" onClick={save}>Save Attendance</button>
+      </div>
+    <div className="card"><h3>Recent Check-ins</h3>{attendance.length ? <Table heads={['Date', 'Class', 'Customer']}>{[...attendance].reverse().slice(0, 20).map(a => { const c = customers.find(x => x.id === a.customerId), cl = classes.find(x => x.id === a.classId); 
+      return <tr key={a.id}><td>{a.date}</td>
+      <td>{cl?.name}</td>
+      <td>{c?.firstName} {c?.lastName}</td></tr>; })}
+      </Table> : <Empty />}
+      </div>
+  </div>
+  </section>;
+}
 
-    return <section>
-        <div className="hero">
-            <div>
-                <p className="eyebrow">Studio overview</p>
-                <h2>Welcome to YogiTrack</h2>
-                <p>Manage Yoga H’om classes, people, and packages.</p>
-            </div>
+function Schedule({ classes, instructors }) {
+  const rows = [...classes].filter(c => c.published).sort((a, b) => DAYS.indexOf(a.day) - DAYS.indexOf(b.day) || a.time.localeCompare(b.time));
+  return <section>
+    <div className="page-title">
+      <div>
+      <p className="eyebrow">Published</p>
+      <h2>Weekly Schedule</h2>
+      </div>
+    </div>
+      <div className="schedule-grid">{DAYS.map(day => <div className="day card" key={day}>
+        <h3>{day}</h3>
+        {rows.filter(c => c.day === day).map(c => { const i = instructors.find(x => x.id === c.instructorId); 
+  return <div className="class-tile" key={c.id}><strong>{c.time}</strong><span>{c.name}</span><small>{i?.firstName || 'TBA'} · {c.classType}</small></div>; })}{!rows.some(c => c.day === day) && <small>No classes</small>}</div>)}</div></section>;
+}
+
+function Reports({ sales, attendance, customers, packages, classes, instructors }) {
+  const revenue = sales.reduce((n, s) => n + Number(s.amount), 0);
+  return <section>
+    <div className="page-title"><div>
+      <p className="eyebrow">Insights</p>
+      <h2>Studio Reports</h2>
+      </div></div>
+      <div className="report-grid">
+    <div className="card"><h3>Package Sales</h3>
+    <div className="big-number">{money(revenue)}</div>
+    <p>{sales.length} packages sold</p>
+    {packages.map(p => <div className="report-row" key={p.id}><span>{p.name}</span><strong>{sales.filter(s => s.packageId === p.id).length}</strong></div>)}
+    </div>
+    <div className="card">
+      <h3>Instructor Performance</h3>
+      {instructors.map(i => { const ids = classes.filter(c => c.instructorId === i.id).map(c => c.id); return <div className="report-row" key={i.id}><span>{i.firstName} {i.lastName}<small>{ids.length} assigned classes</small></span><strong>{attendance.filter(a => ids.includes(a.classId)).length} check-ins</strong></div>; 
+    })}</div>
+    <div className="card">
+      <h3>Customer Attendance</h3>
+      {customers.map(c => <div className="report-row" key={c.id}><span>{c.firstName} {c.lastName}<small>Balance {c.balance}</small></span><strong>{attendance.filter(a => a.customerId === c.id).length} visits</strong></div>)}
+      </div>
+    <div className="card">
+      <h3>Teacher Payment Estimate</h3>
+      {instructors.map(i => { const taught = classes.filter(c => c.instructorId === i.id); 
+        const estimate = taught.reduce((n, c) => n + Number(c.payRate), 0); 
+        return <div className="report-row" key={i.id}><span>{i.firstName} {i.lastName}<small>{taught.length} scheduled classes</small></span><strong>{money(estimate)}</strong></div>; 
+        })}
+        <p className="fine-print">Estimate uses one pay rate per scheduled class.</p>
         </div>
+  </div>
+  </section>;
+}
 
-        <div className="stats">
-            {cards.map(([label, value, go]) =>
-                <button
-                    className="stat card"
-                    key={label}
-                    onClick={() => setPage(go)}
-                >
-                    <span>{label}</span>
-                    <strong>{value}</strong>
-                    <small>View details →</small>
-                </button>
-            )}
-        </div>
-
-    </section>;
+function Dashboard({ db, setPage }) {
+  const cards = [['Customers', db.customers.length, 'Customers'], ['Instructors', db.instructors.length, 'Instructors'], ['Published classes', db.classes.filter(c => c.published).length, 'Schedule'], ['Sales', money(db.sales.reduce((n, s) => n + Number(s.amount), 0)), 'Sales']];
+  return <section>
+    <div className="hero"><div>
+      <p className="eyebrow">Studio overview</p>
+      <h2>Welcome to YogiTrack</h2>
+      <p>Manage Yoga H’om classes, people, packages, sales, and attendance.</p>
+      </div>
+      <button className="primary" onClick={() => setPage('Attendance')}>Record attendance</button>
+      </div>
+      <div className="stats">{cards.map(([label, value, go]) => 
+        <button className="stat card" key={label} onClick={() => setPage(go)}><span>{label}</span><strong>{value}</strong><small>View details →</small></button>)}</div>
+        <div className="card getting-started">
+          <h3>Part 1 workflow</h3>
+          <ol>
+            <li>Add instructors and customers.</li>
+            <li>Create packages and scheduled classes.</li>
+            <li>Publish the weekly schedule.</li>
+            <li>Record a package sale.</li>
+            <li>Check customers into a class and review reports.</li>
+            </ol>
+              </div>
+              </section>;
 }
 
 export default function App() {
   const [page, setPage] = useState('Dashboard');
-    const [db, setDb] = useState(() => structuredClone(starter));
+  const [db, setDb] = useState(() => { try { return JSON.parse(localStorage.getItem('yogitrack-data')) || starter;
+
+  } 
+  catch {
+    return starter;
+  } 
+});
+  useEffect(() => localStorage.setItem('yogitrack-data', JSON.stringify(db)), [db]);
   const set = key => value => setDb(old => ({ ...old, [key]: value }));
-    const content = useMemo(() => ({
-        Dashboard: <Dashboard db={db} setPage={setPage} />,
-        Instructors: <People
-            title="Instructors"
-            type="instructor"
-            rows={db.instructors}
-            setRows={set('instructors')}
-        />,
-        Customers: <People
-            title="Customers"
-            type="customer"
-            rows={db.customers}
-            setRows={set('customers')}
-        />,
-        Classes: <Classes
-            data={db.classes}
-            setData={set('classes')}
-            instructors={db.instructors}
-        />,
-        Packages: <Packages
-            data={db.packages}
-            setData={set('packages')}
-        />,
-        Sales: <Sales
-            data={db.sales}
-            setData={set('sales')}
-            customers={db.customers}
-            setCustomers={set('customers')}
-            packages={db.packages}
-        />
-
-    }), [db]);
-    return <div className="app">
-        <aside>
-            <div className="brand">
-                <div className="mark">Y</div>
-                <div>
-                    <h1>YogiTrack</h1>
-                    <small>Yoga H’om Studio</small>
-                </div>
-            </div>
-
-            <nav>
-                {nav.map(n =>
-                    <button
-                        key={n}
-                        className={page === n ? 'active' : ''}
-                        onClick={() => setPage(n)}
-                    >
-                        {n}
-                    </button>
-                )}
-            </nav>
-        </aside>
-
-        <main>
-            <header>
-                <div>
-                    <strong>{page}</strong>
-                    <small>Manager workspace</small>
-                </div>
-                <div className="avatar">M</div>
-            </header>
-
-            <div className="content">
-                {content[page]}
-            </div>
-        </main>
-    </div>;
+  const content = useMemo(() => ({
+    Dashboard: <Dashboard db={db} setPage={setPage} />,
+    Instructors: <People title="Instructors" type="instructor" rows={db.instructors} setRows={set('instructors')} />,
+    Customers: <People title="Customers" type="customer" rows={db.customers} setRows={set('customers')} />,
+    Classes: <Classes data={db.classes} setData={set('classes')} instructors={db.instructors} />,
+    Packages: <Packages data={db.packages} setData={set('packages')} />,
+    Sales: <Sales customers={db.customers} setCustomers={set('customers')} packages={db.packages} sales={db.sales} setSales={set('sales')} />,
+    Attendance: <Attendance classes={db.classes} instructors={db.instructors} customers={db.customers} setCustomers={set('customers')} attendance={db.attendance} setAttendance={set('attendance')} />,
+    Schedule: <Schedule classes={db.classes} instructors={db.instructors} />,
+    Reports: <Reports {...db} />
+  }), [db]);
 }
