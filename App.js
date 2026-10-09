@@ -64,12 +64,29 @@ function People({ title, type, rows, setRows }) {
   </section>;
 }
 
-function Packages({ data, setData }) {
+function Packages({ data, setData = []}){
   const blank = { name: '', category: 'General', count: '4', classType: 'General', duration: 30, price: '' };
   const [form, setForm] = useState(blank);
   const change = e => setForm({ ...form, [e.target.name]: e.target.value });
-  const submit = e => { e.preventDefault(); if (!form.name || !form.price) return; setData([...data, { ...form, id: uid('P'), duration: Number(form.duration), price: Number(form.price) }]); setForm(blank); };
-  return <section><div className="page-title"><div><p className="eyebrow">Products</p><h2>Packages</h2></div></div><div className="split">
+  const submit = e => { e.preventDefault(); 
+    if (!form.name || !form.price) return; 
+    setData([...data, { ...form, id: uid('P'), duration: Number(form.duration), price: Number(form.price) }]); 
+    setForm(blank);
+    const remove = id => {
+      if (sales.some(s => s.packageId === id))
+        window.alert('This package has been sold and cannot be deleted.');
+      return;
+}
+
+if (window.confirm('Delete this package?')) setData(data.filter(p => p.id !== id));
+ 
+  };
+  return <section>
+    <div className="page-title"><div>
+      <p className="eyebrow">Products</p>
+      <h2>Packages</h2>
+      </div></div>
+      <div className="split">
     <form className="card form" onSubmit={submit}><h3>Add Package</h3><div className="form-grid">
       <Field label="Package name *"><input name="name" value={form.name} onChange={change} /></Field>
       <Field label="Category"><select name="category" value={form.category} onChange={change}><option>General</option><option>Senior</option></select></Field>
@@ -81,14 +98,7 @@ function Packages({ data, setData }) {
     <div className="card"><h3>Available Packages</h3><Table heads={['ID', 'Package', 'Rules', 'Price']}>
       {data.map(p => <tr key={p.id}><td>{p.id}</td><td><strong>{p.name}</strong><small>{p.category}</small></td><td>{p.count} classes · {p.duration} days<small>{p.classType}</small></td><td>{money(p.price)}</td></tr>)}
     </Table></div></div></section>;
-    const remove = id => {
-      if (sales.some(s => s.packageId === id))
-        window.alert('This package has been sold and cannot be deleted.');
-      return;
-}
-
-if (window.confirm('Delete this package?')) setData(data.filter(p => p.id !== id));
-};
+    };
 
 function Classes({ data, setData, instructors }) {
   const blank = { name: 'All Levels', instructorId: instructors[0]?.id || '', day: 'Monday', time: '09:00', classType: 'General', payRate: 45, published: false };
@@ -244,7 +254,7 @@ export default function App() {
     Instructors: <People title="Instructors" type="instructor" rows={db.instructors} setRows={set('instructors')} />,
     Customers: <People title="Customers" type="customer" rows={db.customers} setRows={set('customers')} />,
     Classes: <Classes data={db.classes} setData={set('classes')} instructors={db.instructors} />,
-    Packages: <Packages data={db.packages} setData={set('packages')} />,
+    Packages: <Packages data={db.packages} setData={set('packages')} sales={db.sales} />,
     Sales: <Sales customers={db.customers} setCustomers={set('customers')} packages={db.packages} sales={db.sales} setSales={set('sales')} />,
     Attendance: <Attendance classes={db.classes} instructors={db.instructors} customers={db.customers} setCustomers={set('customers')} attendance={db.attendance} setAttendance={set('attendance')} />,
     Schedule: <Schedule classes={db.classes} instructors={db.instructors} />,
