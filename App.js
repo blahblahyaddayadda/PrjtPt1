@@ -1,4 +1,4 @@
-import React, {useMemo, useState } from 'react';
+import React, {useEffect, useMemo, useState } from 'react';
 import './App.css';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -252,4 +252,27 @@ export default function App() {
     Schedule: <Schedule classes={db.classes} instructors={db.instructors} />,
     Reports: <Reports {...db} />
   }), [db]);
+    return (
+    <div className="app">
+      <aside className="sidebar">
+        <h1>YogiTrack</h1>
+
+        <nav>
+          {nav.map(item => (
+            <button
+              key={item}
+              className={page === item ? 'active' : ''}
+              onClick={() => setPage(item)}
+            >
+              {item}
+            </button>
+          ))}
+        </nav>
+      </aside>
+
+      <main className="main">
+        {content[page]}
+      </main>
+    </div>
+  );
 }
