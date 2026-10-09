@@ -216,18 +216,9 @@ function Dashboard({ db, setPage }) {
       <button className="primary" onClick={() => setPage('Attendance')}>Record attendance</button>
       </div>
       <div className="stats">{cards.map(([label, value, go]) => 
-        <button className="stat card" key={label} onClick={() => setPage(go)}><span>{label}</span><strong>{value}</strong><small>View details →</small></button>)}</div>
-        <div className="card getting-started">
-          <h3>Part 1 workflow</h3>
-          <ol>
-            <li>Add instructors and customers.</li>
-            <li>Create packages and scheduled classes.</li>
-            <li>Publish the weekly schedule.</li>
-            <li>Record a package sale.</li>
-            <li>Check customers into a class and review reports.</li>
-            </ol>
-              </div>
-              </section>;
+        <button className="stat card" key={label} onClick={() => setPage(go)}><span>{label}</span><strong>{value}</strong><small>View details →</small></button>)}
+        </div>
+        </section>;
 }
 
 export default function App() {
