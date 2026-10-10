@@ -91,7 +91,7 @@ function People({ title, type, rows, setRows }) {
   </section>;
 }
 
-function Packages({ data, setData, sales = []}){
+function Packages({ data, setData = []}){
   const blank = { name: '', category: 'General', count: '4', classType: 'General', duration: 30, price: '' };
   const [form, setForm] = useState(blank);
   const change = e => setForm({ ...form, [e.target.name]: e.target.value });
@@ -99,19 +99,15 @@ function Packages({ data, setData, sales = []}){
     if (!form.name || !form.price) return; 
     setData([...data, { ...form, id: uid('P'), duration: Number(form.duration), price: Number(form.price) }]); 
     setForm(blank);
-  };
-
-  const remove = id => {
-    if (sales.some(s => s.packageId === id)) {
-      window.alert('This package has been sold and cannot be deleted.');
+    const remove = id => {
+      if (sales.some(s => s.packageId === id))
+        window.alert('This package has been sold and cannot be deleted.');
       return;
-    }
+}
 
-    if (window.confirm('Delete this package?')) {
-      setData(data.filter(p => p.id !== id));
-    }
+if (window.confirm('Delete this package?')) setData(data.filter(p => p.id !== id));
+ 
   };
-
   return <section>
     <div className="page-title"><div>
       <p className="eyebrow">Products</p>
@@ -119,47 +115,16 @@ function Packages({ data, setData, sales = []}){
       </div></div>
       <div className="split">
     <form className="card form" onSubmit={submit}><h3>Add Package</h3><div className="form-grid">
-      <Field label="Package name *">
-        <input name="name" value={form.name} onChange={change} />
-        </Field>
-      <Field label="Category">
-        <select name="category" value={form.category} onChange={change}>
-          <option>General</option>
-          <option>Senior</option>
-          </select>
-          </Field>
-      <Field label="Number of classes">
-        <select name="count" value={form.count} onChange={change}>
-          <option>1</option>
-          <option>4</option>
-          <option>10</option>
-          <option>Unlimited</option>
-          </select>
-          </Field>
-      <Field label="Class type">
-        <select name="classType" value={form.classType} onChange={change}><option>General</option><option>Special</option></select></Field>
-      <Field label="Validity (days)">
-        <input type="number" name="duration" value={form.duration} onChange={change} />
-        </Field>
-      <Field label="Price *">
-        <input type="number" name="price" value={form.price} onChange={change} />
-        </Field>
-    </div>
-    <button className="primary">Save Package</button>
-    </form>
-    <div className="card">
-      <h3>Available Packages</h3>
-      <Table heads={['ID', 'Package', 'Rules', 'Price']}>
-      {data.map(p => 
-      <tr key={p.id}>
-        <td>{p.id}</td>
-        <td><strong>{p.name}</strong><small>{p.category}</small></td>
-        <td>{p.count} classes · {p.duration} days<small>{p.classType}</small></td>
-        <td>{money(p.price)}</td>
-        </tr>)}
-    </Table>
-    </div></div>
-    </section>;
+      <Field label="Package name *"><input name="name" value={form.name} onChange={change} /></Field>
+      <Field label="Category"><select name="category" value={form.category} onChange={change}><option>General</option><option>Senior</option></select></Field>
+      <Field label="Number of classes"><select name="count" value={form.count} onChange={change}><option>1</option><option>4</option><option>10</option><option>Unlimited</option></select></Field>
+      <Field label="Class type"><select name="classType" value={form.classType} onChange={change}><option>General</option><option>Special</option></select></Field>
+      <Field label="Validity (days)"><input type="number" name="duration" value={form.duration} onChange={change} /></Field>
+      <Field label="Price *"><input type="number" name="price" value={form.price} onChange={change} /></Field>
+    </div><button className="primary">Save Package</button></form>
+    <div className="card"><h3>Available Packages</h3><Table heads={['ID', 'Package', 'Rules', 'Price']}>
+      {data.map(p => <tr key={p.id}><td>{p.id}</td><td><strong>{p.name}</strong><small>{p.category}</small></td><td>{p.count} classes · {p.duration} days<small>{p.classType}</small></td><td>{money(p.price)}</td></tr>)}
+    </Table></div></div></section>;
     };
 
 function Classes({ data, setData, instructors }) {
