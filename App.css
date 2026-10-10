@@ -444,8 +444,9 @@ td small,
     padding-bottom: 12px;
   }
   nav {
-    display: grid !important;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex !important;
+    flex-direction: column;
+    gap: 4px;
   }
   nav button {
     font-size: 12px;
