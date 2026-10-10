@@ -449,9 +449,10 @@ td small,
     gap: 4px;
   }
   nav button {
-    font-size: 12px;
-    text-align: center;
-    padding: 8px;
+    font-size: 14px;
+    text-align: left;
+    padding: 11px 14px;
+    width: 100%;
   }
   .reset {
     display: none;
