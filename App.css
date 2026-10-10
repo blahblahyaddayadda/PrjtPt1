@@ -481,3 +481,19 @@ td small,
     padding: 17px;
   }
 }
+
+aside nav,
+.brand + nav {
+  display: flex !important;
+  flex-direction: column !important;
+  flex-wrap: nowrap !important;
+  grid-template-columns: none !important;
+  width: 100%;
+}
+
+aside nav button, {
+display: block;
+width: 100%;
+text-align: left;
+flex-shrink: 0;
+}
